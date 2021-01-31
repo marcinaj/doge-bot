@@ -1,50 +1,47 @@
 import twitter from './twitter.client.mjs';
 import ignore  from './config.ignore.mjs';
 
-let _cache  = [];
-let _stream = null;
+let CACHE     = [];
+let STREAM    = null;
+let RX_IGNORE = new RegExp( ignore.join('|'), 'i' );
 
-//let _rx_has_space = new RegExp( '^.* .*$' );
-let _rx_ignore    = new RegExp( ignore.join('|'), 'i' );
-
-function init()
+export default class TwitterInput
 {
-  twitter.init();
+  get length(){ return CACHE.length; }
   
-  if( !twitter.client )
-    return false;
-  
-  twitter.client.get( 'search/tweets', { q: 'doge' }, ( err, tweets ) => 
+  static init()
   {
-    if( err ) 
-      return console.error( err );
-    for( let tweet of tweets.statuses ) 
-      if( !_rx_ignore.test( tweet.text ) )
-        _cache.push( tweet.text );
-  } );
-  
-  _stream = twitter.client.stream( 'statuses/filter', { track: 'doge' } );
-  _stream.on( 'data', event => { if( !_rx_ignore.test( event.text ) ) _cache.push( event.text ); } );
-  
-  return true;
-}
-
-async function poll( fn ) 
-{
-  if( !twitter.client )
-    return false;
+    twitter.init();
     
-  if( _cache.length > 0 && fn )
-  {
-    fn( _cache[_cache.length - 1] );
-    _cache.pop();
+    if( !twitter.client )
+      return false;
+    
+    twitter.client.get( 'search/tweets', { q: 'doge' }, ( err, tweets ) => 
+    {
+      if( err ) 
+        return console.error( err );
+      for( let tweet of tweets.statuses ) 
+        if( !RX_IGNORE.test( tweet.text ) )
+          CACHE.push( tweet.text );
+    } );
+    
+    STREAM = twitter.client.stream( 'statuses/filter', { track: 'doge' } );
+    STREAM.on( 'data', event => { if( !RX_IGNORE.test( event.text ) ) CACHE.push( event.text ); } );
+    
     return true;
   }
-  return false;
-}
 
-export default {
-  init,
-  poll,
-  get length(){ return _cache.length; }
-};
+  static async poll( fn ) 
+  {
+    if( !twitter.client )
+      return false;
+      
+    if( CACHE.length > 0 && fn )
+    {
+      fn( CACHE[CACHE.length - 1] );
+      CACHE.pop();
+      return true;
+    }
+    return false;
+  }
+}

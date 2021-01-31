@@ -1,36 +1,37 @@
-import Client from 'snoowrap';
-import cfg    from './reddit.config.mjs';
+import ClientApi from 'snoowrap';
+import cfg       from './reddit.config.mjs';
 
-let _client_config = null;
-let _client        = null;
+let CLIENT_CONFIG = null;
+let CLIENT        = null;
 
-function init()
+export default class RedditClient 
 {
-  if( !_client )
+  static get client() { return CLIENT;        }
+  static get config() { return CLIENT_CONFIG; }
+
+  static init()
   {
-    _client_config = {
-      userAgent    : cfg.userAgent    ,
-      clientId     : cfg.clientId     ,
-      clientSecret : cfg.clientSecret ,
-      refreshToken : cfg.refreshToken ,
-    };
-    if(
-      cfg.userAgent   .length == 0 || cfg.clientId    .length == 0 || 
-      cfg.clientSecret.length == 0 || cfg.refreshToken.length == 0
-    ){
-      console.error( 'invalid reddit configuration' );
-      console.log( { reddit_config : _client_config } );
-    }
-    else
+    if( !CLIENT )
     {
-      console.log( { reddit_config : _client_config } );
-      _client = new Client( _client_config );
+      CLIENT_CONFIG = {
+        userAgent    : cfg.userAgent    ,
+        clientId     : cfg.clientId     ,
+        clientSecret : cfg.clientSecret ,
+        refreshToken : cfg.refreshToken ,
+      };
+      if(
+        cfg.userAgent   .length == 0 || cfg.clientId    .length == 0 || 
+        cfg.clientSecret.length == 0 || cfg.refreshToken.length == 0
+      ){
+        console.error( 'invalid reddit configuration' );
+        console.log( { reddit_config : CLIENT_CONFIG } );
+      }
+      else
+      {
+        console.log( { reddit_config : CLIENT_CONFIG } );
+        CLIENT = new ClientApi( CLIENT_CONFIG );
+      }
     }
+    return this;
   }
 }
-
-export default {
-  init,
-  get client() { return _client;        },
-  get config() { return _client_config; }
-};

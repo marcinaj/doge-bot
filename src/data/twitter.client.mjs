@@ -1,36 +1,37 @@
-import Client from 'twitter';
-import cfg    from './twitter.config.mjs';
+import ClientApi from 'twitter';
+import cfg       from './twitter.config.mjs';
 
-let _client_config = null;
-let _client        = null;
+let CLIENT_CONFIG = null;
+let CLIENT        = null;
 
-function init()
+export default class TwitterClient 
 {
-  if( !_client )
+  static get client() { return CLIENT;        }
+  static get config() { return CLIENT_CONFIG; }
+  
+  static init()
   {
-    _client_config = {
-      consumer_key        : cfg.consumer_key        ,
-      consumer_secret     : cfg.consumer_secret     ,
-      access_token_key    : cfg.access_token_key    ,
-      access_token_secret : cfg.access_token_secret ,
-    };
-    if( 
-      cfg.consumer_key    .length == 0 || cfg.consumer_secret    .length == 0 ||
-      cfg.access_token_key.length == 0 || cfg.access_token_secret.length == 0
-    ){
-      console.error( 'invalid twitter configuration' );
-      console.log( { twitter_config : _client_config } );
-    }
-    else 
+    if( !CLIENT )
     {
-      console.log( { twitter_config : _client_config } );
-      _client = new Client( _client_config );
+      CLIENT_CONFIG = {
+        consumer_key        : cfg.consumer_key        ,
+        consumer_secret     : cfg.consumer_secret     ,
+        access_token_key    : cfg.access_token_key    ,
+        access_token_secret : cfg.access_token_secret ,
+      };
+      if( 
+        cfg.consumer_key    .length == 0 || cfg.consumer_secret    .length == 0 ||
+        cfg.access_token_key.length == 0 || cfg.access_token_secret.length == 0
+      ){
+        console.error( 'invalid twitter configuration' );
+        console.log( { twitter_config : CLIENT_CONFIG } );
+      }
+      else 
+      {
+        console.log( { twitter_config : CLIENT_CONFIG } );
+        CLIENT = new ClientApi( CLIENT_CONFIG );
+      }
     }
+    return this;
   }
 }
-
-export default {
-  init,
-  get client() { return _client;        },
-  get config() { return _client_config; }
-};
