@@ -12,10 +12,11 @@
   },
   "rules": 
   {
-    "indent"                   : [ "error",        2 ],
+    "indent"                   : [ "error",        2, { "SwitchCase": 1 } ],
     "no-mixed-spaces-and-tabs" :   "error",
     "linebreak-style"          : [ "error",   "unix" ],
     "quotes"                   : [ "error", "single" ],
-    "semi"                     : [ "error", "always" ]
+    "semi"                     : [ "error", "always" ],
+    "no-unused-vars"           : "off",
   }
 }
